@@ -23,7 +23,7 @@ RPC_AUTH_METHOD=
 
 ## Configure Auth guard
 
-Inside the config/auth.php file you will need to make a few changes to configure Laravel to use the jwt guard to power your application authentication.
+Inside the **config/auth.php** file you will need to make a few changes to configure Laravel to use the jwt guard to power your application authentication.
 
 Make the following changes to the file:
 
@@ -37,7 +37,7 @@ Make the following changes to the file:
 
 ## Add some basic authentication routes
 
-First let's add some routes in routes/api.php as follows:
+First let's add some routes in **routes/api.php** as follows:
 
 ```
 Route::group([
