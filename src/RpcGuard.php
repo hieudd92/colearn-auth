@@ -2,7 +2,7 @@
 
 namespace CoLearn\Auth;
 
-use CoLearn\RabbitMQ\RabbitMQ;
+use CoLearn\Auth\Services\RpcService;
 use Illuminate\Auth\GuardHelpers;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Http\Request;
@@ -16,13 +16,11 @@ class RpcGuard implements Guard
 
 	private $request;
 	private $config;
-	private $rabbit;
 
 	public function __construct(Request $request, $config)
 	{
 		$this->request = $request;
 		$this->config = $config;
-		$this->rabbit = app('rabbitmq.queue')->connection('rabbitmq');
 	}
 
 	public function user () {
@@ -36,20 +34,7 @@ class RpcGuard implements Guard
 		$token = $this->getTokenForRequest();
 
 		if (!empty($token) && !empty($this->config['colearn_auth.rpc'])) {
-			$request = [
-	            'requestMethod' => $this->config['colearn_auth.rpc.method'],
-	            'requestPath' => $this->config['colearn_auth.rpc.url'],
-	            'urlParam' => '',
-	            'pathParam' => '',
-	            'headerParam' => [
-	                'authorization' => 'Bearer ' . $token
-	            ]
-	        ];
-	        $response = RabbitMQ::declareRPCClient($this->rabbit, $this->config['colearn_auth.rpc.queue'], json_encode($request));
-	        if ($response && isset($response['data']['status']) && $response['data']['status'] === 200){
-				$user = $response['data']['data'];
-			}
-			
+			$user = (new RpcService)->retrieveUserByToken($token, $this->config);
 		}
 
 		return $this->user = $user;
